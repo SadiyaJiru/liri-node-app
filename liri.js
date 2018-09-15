@@ -9,6 +9,8 @@ require("dotenv").config();
 var request = require("request");
 var fs = require("fs"); //reads and writes files
 var keys = require("./keys.js");
+var moment = require('moment');
+
 
 // let space = "\n" + "\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0";
 
@@ -46,10 +48,6 @@ switch (liriArg1) {
 // Functions
 // Movie function, uses the Request module to call the OMDB api
 function movies() {
-  // fs.appendFile("log.txt", movie , function(err) {
-  //   if (err) {
-  //     return console.log(err);
-  //   }
   var movie = process.argv[3];
   //if the movie doesn't exist
   if (!movie) {
@@ -106,18 +104,36 @@ function spotifySearch(song) {
   });
 }
 ///////////////////// End of Spotify code ///////////////////////
-function findConcerts(band) {
-  var band = process.argv[3];
+function findConcerts() {
+  var band = process.argv[3]
   if (!band) {
     band = "ColdPlay";
   }
+  bandName = band
+ // https://rest.bandsintown.com/artists/coldplay?app_id=codingbootcamp
+  // var queryUrl =  "https://rest.bandsintown.com/artists/" + bandName + "/events?app_id=codingbootcamp" + "&date=2015-05-05%2C2019-05-05";
+  // var queryUrl =  "https://rest.bandsintown.com/artists/" + bandName + "?app_id=codingbootcamp" + "&date=2015-05-05%2C2019-05-05";
+  var queryUrl =  "https://rest.bandsintown.com/artists/" + bandName + "events?app_id=codingbootcamp"
 
-  var queryUrl =  "https://rest.bandsintown.com/artists/" + band + "/events?app_id=codingbootcamp";
+  console.log("Band/Artist Name: "+ bandName);
+
+  console.log("JSON info: " + queryUrl);
+
 
   request(queryUrl, function(error, response, body) {
-    if (!error && response.statusCode === 200) {
+    if (error) console.log(error);
+    var result = JSON.parse(body)[0];
       console.log("--------Concert Info-----------" + "\n");
-      console.log("Movie Title: " + JSON.parse(body).name + "\n");
+      // console.log("Band/Artist Name: " + jsonData.venue.name + "\n");
+      console.log("Venue name " + result.venu.name);
+      console.log("Venue location " + result.venu.city);
+      console.log("Date of Event " +  moment(result.datetime).format("MM/DD/YYYY"));
+     
+
+
     }
-  });
-}
+  
+  )};
+
+// https://rest.bandsintown.com/artists/maroon5/events?app_id=codingbootcamp
+// https://rest.bandsintown.com/artists/maroon5/events?app_id=codingbootcamp&date=2015-05-05%2C2019-05-05
