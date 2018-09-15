@@ -9,8 +9,7 @@ require("dotenv").config();
 var request = require("request");
 var fs = require("fs"); //reads and writes files
 var keys = require("./keys.js");
-var moment = require('moment');
-
+var moment = require("moment");
 
 // let space = "\n" + "\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0";
 
@@ -48,7 +47,7 @@ switch (liriArg1) {
 // Functions
 // Movie function, uses the Request module to call the OMDB api
 function movies() {
-  var movie = process.argv[3];
+  var movie = process.argv.slice(3).join(" ");
   //if the movie doesn't exist
   if (!movie) {
     movie = "mr nobody";
@@ -83,7 +82,7 @@ function movies() {
 ///////////////////// End of Movie code ///////////////////////
 
 function spotifySearch(song) {
-  var song = process.argv[3];
+  var song = process.argv.slice(3).join(" ");
   //if the movie doesn't exist
   if (!song) {
     song = "The Sign";
@@ -104,36 +103,35 @@ function spotifySearch(song) {
   });
 }
 ///////////////////// End of Spotify code ///////////////////////
-function findConcerts() {
-  var band = process.argv[3]
+function findConcerts(band) {
+  var band = process.argv.slice(3).join(" ");
   if (!band) {
     band = "ColdPlay";
   }
-  bandName = band
- // https://rest.bandsintown.com/artists/coldplay?app_id=codingbootcamp
-  // var queryUrl =  "https://rest.bandsintown.com/artists/" + bandName + "/events?app_id=codingbootcamp" + "&date=2015-05-05%2C2019-05-05";
-  // var queryUrl =  "https://rest.bandsintown.com/artists/" + bandName + "?app_id=codingbootcamp" + "&date=2015-05-05%2C2019-05-05";
-  var queryUrl =  "https://rest.bandsintown.com/artists/" + bandName + "events?app_id=codingbootcamp"
+  request(`https://rest.bandsintown.com/artists/${encodeURI(band)}/events?app_id=codingbootcamp`,
+  function (error, response, body) {
+    
 
-  console.log("Band/Artist Name: "+ bandName);
+      if (!error && response.statusCode === 200) {
+        body = JSON.parse(body);
 
-  console.log("JSON info: " + queryUrl);
+        for (let i = 0; i < body.length; i++) {
+          let time = moment(body[i].datetime).format('MM/DD/YYYY');
 
+          console.log("--------Concert Info-----------" + "\n");
+          console.log("Band/Artist Name: " + band);
+          console.log(`Venue: ${body[i].venue.name}`);
+          console.log(`Location: ${body[i].venue.city}, ${body[i].venue.region}, ${body[i].venue.country}`);
+          console.log((`Date: ${time}`))
 
-  request(queryUrl, function(error, response, body) {
-    if (error) console.log(error);
-    var result = JSON.parse(body)[0];
-      console.log("--------Concert Info-----------" + "\n");
-      // console.log("Band/Artist Name: " + jsonData.venue.name + "\n");
-      console.log("Venue name " + result.venu.name);
-      console.log("Venue location " + result.venu.city);
-      console.log("Date of Event " +  moment(result.datetime).format("MM/DD/YYYY"));
-     
-
-
+        }
+      } else {
+        console.log("Error :" + error);
+        return;
+      }
     }
-  
-  )};
+  );
+}
 
 // https://rest.bandsintown.com/artists/maroon5/events?app_id=codingbootcamp
 // https://rest.bandsintown.com/artists/maroon5/events?app_id=codingbootcamp&date=2015-05-05%2C2019-05-05
