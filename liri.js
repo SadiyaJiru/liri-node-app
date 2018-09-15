@@ -11,10 +11,6 @@ var fs = require("fs"); //reads and writes files
 var keys = require("./keys.js");
 var moment = require("moment");
 
-// let space = "\n" + "\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0";
-
-// var omdb = new OMDB(keys.omdb);
-
 var Spotify = require("node-spotify-api");
 
 //import
@@ -24,11 +20,8 @@ var spotifyAPI = new Spotify({
   secret: keys.spotify.secret
 });
 
-// var OMDB =  process.env.OMDB_ID
-
-// var omdbAPIKey = new movies({
-//   id: keys.OMDB.id
-// });
+const OMDB = keys.OMDB;
+const BandsInTown = keys.BandsInTown;
 
 var liriArg1 = process.argv[2]; //movie-this, spotify-this-song...
 
@@ -56,7 +49,7 @@ function movies() {
   //NEED to PULL API KEY FROM KEYS.JS??????????????????????/
   // Then run a request to the OMDB API with the movie specified
   var queryUrl =
-    "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
+    "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=" + OMDB.id;
 
   // This line is just to help us debug against the actual URL.
   console.log("JSON info: " + queryUrl);
@@ -108,7 +101,9 @@ function findConcerts(band) {
   if (!band) {
     band = "ColdPlay";
   }
-  request(`https://rest.bandsintown.com/artists/${encodeURI(band)}/events?app_id=codingbootcamp`,
+
+  
+  request(`https://rest.bandsintown.com/artists/${encodeURI(band)}/events?app_id=${BandsInTown.id}`,
   function (error, response, body) {
     
 
