@@ -35,6 +35,8 @@ switch (liriArg1) {
   case "concert-this":
     findConcerts();
     break; // if user selects concert, call the findConcerts() function
+
+    case "do-what-it-says": doWhat();
 }
 
 // Functions
@@ -127,6 +129,14 @@ function findConcerts(band) {
     }
   );
 }
+function doWhat(){
+  fs.readFile("random.txt", "utf8", function(error, data) {
+  // If the code experiences any errors it will log the error to the console.
+  if (error) {
+    return console.log(error);
+  }
 
-// https://rest.bandsintown.com/artists/maroon5/events?app_id=codingbootcamp
-// https://rest.bandsintown.com/artists/maroon5/events?app_id=codingbootcamp&date=2015-05-05%2C2019-05-05
+  // We will then print the contents of data
+  console.log(data);
+  // spotifySearch();
+})}
