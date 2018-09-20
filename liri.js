@@ -1,10 +1,4 @@
-//Protecting API Keys in Node
-//Read and set environment variables from .env
-//This code reads any environment variables we assign locally and sets them to the process.env object
-// prints `34e84d93de6a4650815e5420e0` to the console
-//  console.log(process.env.SPOTIFY_ID)
 require("dotenv").config();
-
 // Include the request npm package
 var request = require("request");
 var fs = require("fs"); //reads and writes files
@@ -12,9 +6,6 @@ var keys = require("./keys.js");
 var moment = require("moment");
 
 var Spotify = require("node-spotify-api");
-
-//import
-
 var spotifyAPI = new Spotify({
   id: keys.spotify.id,
   secret: keys.spotify.secret
@@ -36,10 +27,25 @@ switch (liriArg1) {
     findConcerts();
     break; // if user selects concert, call the findConcerts() function
 
-    case "do-what-it-says": doWhat();
-}
+  case "do-what-it-says":
+    doWhatItSays();
+    break;
 
-// Functions
+  default:
+    console.log(
+      "\r\n" +
+        "Type one of the following commands after 'node liri.js' : " +
+        "\r\n" +
+        "1. movie-this  'ny movie name' " +
+        "\r\n" +
+        "2. spotify-this-song 'any song name' " +
+        "\r\n" +
+        "3. do-what-it-says." +
+        "\r\n" +
+        "4. concert-this." +
+        "\r\n"
+    );
+}
 // Movie function, uses the Request module to call the OMDB api
 function movies() {
   var movie = process.argv.slice(3).join(" ");
@@ -48,10 +54,12 @@ function movies() {
     movie = "mr nobody";
   }
   movieName = movie;
-  //NEED to PULL API KEY FROM KEYS.JS??????????????????????/
-  // Then run a request to the OMDB API with the movie specified
+
   var queryUrl =
-    "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=" + OMDB.id;
+    "http://www.omdbapi.com/?t=" +
+    movieName +
+    "&y=&plot=short&apikey=" +
+    OMDB.id;
 
   // This line is just to help us debug against the actual URL.
   console.log("JSON info: " + queryUrl);
@@ -82,17 +90,16 @@ function spotifySearch(song) {
   if (!song) {
     song = "The Sign";
   }
-  // songName = song
-
-  spotifyAPI.search({ type: "track", query: song }, function(err, info) {
+  spotifyAPI.search({ type: "track", query: song }, function(err, data) {
     if (err) {
-      return console.log("Error occurred: " + err);
+       console.log("Error occurred: " + err);
+       return
     } else {
       console.log("Song Name: " + " " + song);
-      console.log("Artist Name: " + info.tracks.items[0].album.artists[0].name);
-      console.log("Album Name: " + info.tracks.items[0].album.name);
+      console.log("Artist Name: " + data.tracks.items[0].album.artists[0].name);
+      console.log("Album Name: " + data.tracks.items[0].album.name);
       console.log(
-        "URL: " + info.tracks.items[0].album.external_urls.spotify + "\n"
+        "URL: " + data.tracks.items[0].album.external_urls.spotify + "\n"
       );
     }
   });
@@ -104,23 +111,26 @@ function findConcerts(band) {
     band = "ColdPlay";
   }
 
-  
-  request(`https://rest.bandsintown.com/artists/${encodeURI(band)}/events?app_id=${BandsInTown.id}`,
-  function (error, response, body) {
-    
-
+  request(
+    `https://rest.bandsintown.com/artists/${encodeURI(band)}/events?app_id=${
+      BandsInTown.id
+    }`,
+    function(error, response, body) {
       if (!error && response.statusCode === 200) {
         body = JSON.parse(body);
 
         for (let i = 0; i < body.length; i++) {
-          let time = moment(body[i].datetime).format('MM/DD/YYYY');
+          let time = moment(body[i].datetime).format("MM/DD/YYYY");
 
           console.log("--------Concert Info-----------" + "\n");
           console.log("Band/Artist Name: " + band);
           console.log(`Venue: ${body[i].venue.name}`);
-          console.log(`Location: ${body[i].venue.city}, ${body[i].venue.region}, ${body[i].venue.country}`);
-          console.log((`Date: ${time}`))
-
+          console.log(
+            `Location: ${body[i].venue.city}, ${body[i].venue.region}, ${
+              body[i].venue.country
+            }`
+          );
+          console.log(`Date: ${time}`);
         }
       } else {
         console.log("Error :" + error);
@@ -129,14 +139,20 @@ function findConcerts(band) {
     }
   );
 }
-function doWhat(){
-  fs.readFile("random.txt", "utf8", function(error, data) {
-  // If the code experiences any errors it will log the error to the console.
-  if (error) {
-    return console.log(error);
-  }
+function doWhatItSays() {
 
-  // We will then print the contents of data
-  console.log(data);
-  // spotifySearch();
-})}
+  fs.readFile("random.txt", "utf8", function(error, data) {
+    if (!error) {
+      spotifySearch(data.tracks.items[0]);
+    } else {
+      console.log("Error occurred" + error);
+    }
+  });
+}
+// function log(logResults) {
+//   fs.appendFile("log.txt", logResults, (error) => {
+//     if(error) {
+//       throw error;
+//     }
+//   });
+// }
